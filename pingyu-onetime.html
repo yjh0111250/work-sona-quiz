@@ -1,0 +1,275 @@
+<!DOCTYPE html>
+<html lang="zh-CN">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>期末评语生成器（专属链接）</title>
+<style>
+*{box-sizing:border-box;margin:0;padding:0}
+body{font-family:-apple-system,BlinkMacSystemFont,"PingFang SC","Microsoft YaHei",sans-serif;background:#f7f7f8;color:#1f2329;line-height:1.6}
+.wrap{max-width:720px;margin:0 auto;padding:20px 14px 40px}
+header{padding:6px 4px 16px}
+header h1{font-size:21px}
+header p{font-size:13px;color:#888;margin-top:2px}
+.card{background:#fff;border-radius:16px;padding:20px;box-shadow:0 1px 3px rgba(0,0,0,.05);margin-bottom:14px}
+textarea{width:100%;border:1px solid #e3e3e3;border-radius:10px;padding:12px;font-size:15px;font-family:inherit;resize:vertical;min-height:140px;line-height:1.7}
+textarea:focus{outline:none;border-color:#1a6b4a}
+.micro{font-size:12px;color:#999;margin-top:6px}
+.row{display:flex;gap:10px;margin-top:12px}
+select{flex:1;border:1px solid #e3e3e3;border-radius:10px;padding:11px 10px;font-size:14px;font-family:inherit;background:#fff}
+.btn{border:none;border-radius:12px;padding:14px;font-size:16px;font-weight:600;cursor:pointer;font-family:inherit;width:100%;margin-top:14px}
+.btn-primary{background:#1a6b4a;color:#fff}
+.link{display:block;text-align:center;margin-top:12px;font-size:13px;color:#1a6b4a;background:none;border:none;cursor:pointer;width:100%;font-family:inherit}
+#out{display:none}
+.out-head{display:flex;justify-content:space-between;align-items:center;margin-bottom:12px}
+.out-head span{font-size:14px;color:#666}
+.out-btns{display:flex;gap:10px;margin-bottom:14px}
+.out-btns button{flex:1;border:none;border-radius:10px;padding:11px;font-size:14px;font-weight:600;cursor:pointer;font-family:inherit}
+.out-btns .a{background:#1a6b4a;color:#fff}
+.out-btns .b{background:#eef1f3;color:#333}
+.item{border-top:1px solid #f0f0f0;padding:14px 0}
+.item:first-of-type{border-top:none;padding-top:0}
+.item h3{font-size:15px;margin-bottom:6px}
+.item textarea{min-height:80px;border:none;background:#fafafa;padding:10px 12px;font-size:14px}
+.item .swap{background:none;border:none;color:#1a6b4a;font-size:13px;cursor:pointer;padding:6px 0 0;font-family:inherit}
+</style>
+</head>
+<body>
+
+<div id="gate" style="max-width:720px;margin:0 auto;padding:60px 20px;text-align:center;font-family:-apple-system,'PingFang SC','Microsoft YaHei',sans-serif">
+  <p id="gateMsg" style="font-size:16px;color:#333">正在验证链接，请稍候…</p>
+</div>
+
+<div class="wrap">
+  <header>
+    <h1>期末评语生成器</h1>
+    <p>粘贴名单，一键生成全班不重样的评语</p>
+  </header>
+
+  <div class="card">
+    <textarea id="names" placeholder="张小明 认真，进步大，乐于助人&#10;李小红 成绩优秀，细心，爱阅读&#10;王小刚 活泼，粗心，体育好"></textarea>
+    <p class="micro">每行一位：名字 + 关键词，只写名字也可以。</p>
+    <div class="row">
+      <select id="level"><option>小学</option><option>初中</option><option>高中</option></select>
+      <select id="length"><option value="short">简短</option><option value="medium" selected>标准</option><option value="long">详细</option></select>
+    </div>
+    <button class="btn btn-primary" onclick="generateAll()">生成评语</button>
+    <button class="link" onclick="fillDemo()">用示例名单试试 →</button>
+  </div>
+
+  <div class="card" id="out">
+    <div class="out-head"><span id="outCount"></span></div>
+    <div class="out-btns">
+      <button class="a" onclick="copyAll()">复制全部</button>
+      <button class="b" onclick="downloadWord()">下载 Word</button>
+    </div>
+    <div id="results"></div>
+  </div>
+</div>
+<script>
+let results = [];
+let salt = 0;
+const TERM = "本学期";
+
+const OPENERS = [
+  "{t}，{n}同学在各方面都有着不错的表现。",
+  "{t}，{n}同学给老师留下了深刻的印象。",
+  "{t}以来，{n}同学一直在稳步向前。",
+  "{t}，{n}同学的表现可圈可点。",
+  "{n}同学{t}的表现，老师都看在眼里。",
+  "{t}，{n}同学用自己的行动交出了一份认真的答卷。",
+  "{t}里，{n}同学一步一个脚印，踏实前行。",
+  "{n}同学是{t}班里让人放心的一位同学。",
+  "{t}，{n}同学在学习和品行上都有可喜的变化。",
+  "{t}的校园生活里，{n}同学过得充实而有收获。",
+  "{n}同学{t}的状态越来越好，进步看得见。",
+  "{t}，{n}同学始终保持着良好的学习态度。"
+];
+const STUDY = {
+  high: ["课堂上思维活跃，发言有自己的见解，各科成绩一直保持在班级前列。","学习成绩优异，尤其在薄弱学科上也肯下功夫，基础扎实，发挥稳定。","学习上要求严格，作业工整准确，考试成绩在班级里名列前茅。"],
+  progress: ["学习上进步明显，和开学时相比，课堂表现和作业质量都有了很大提升。","这学期进步的幅度不小，遇到不懂的愿意问、愿意练，成绩稳步上升。","学习态度越来越端正，成绩一步步往上走，这份进步值得肯定。"],
+  steady: ["上课认真听讲，作业按时完成，学习态度踏实认真。","课堂专注度不错，能跟着老师的节奏走，作业完成得比较规范。","学习上比较自觉，课堂笔记和作业都做得有条理。"],
+  weak: ["学习上还需要多加一把劲，课堂上的专注度和作业的完成质量都有提升空间。","基础还比较薄弱，但只要方法对、坚持练，完全有条件赶上来。","学习上时有起伏，如果能把课堂时间抓得更紧，成绩会有明显改观。"]
+};
+const TRAIT_SENT = {
+  "认真": ["做事认真负责，交代的任务总能踏踏实实完成。","学习做事都很认真，细节上很少马虎。"],
+  "细心": ["心细如发，作业和考试中很少因为粗心丢分。","做事细致周到，是同学们眼里靠谱的伙伴。"],
+  "粗心": ["只是有时比较粗心，检查的习惯还需要加强，改掉这个毛病成绩还能再上一个台阶。","要留意粗心的小毛病，写完多检查一遍，很多分就不会白白丢掉。"],
+  "活泼": ["性格活泼开朗，班级活动里总能看到活跃的身影。","活泼开朗的性格给班级带来了不少欢乐。"],
+  "内向": ["性格文静内敛，不爱张扬，但做事踏实、待人真诚。","虽然话不多，但心里有数，默默地把自己的事做好。"],
+  "乐于助人": ["乐于助人，同学有困难时总是主动伸出援手。","热心肠，班级里的事抢着干，同学有问题也愿意耐心帮忙。"],
+  "体育": ["体育方面表现突出，运动会上为班级争了光。","热爱运动，身体素质好，体育课上的表现常常受到表扬。"],
+  "阅读": ["爱阅读、爱思考，课外阅读量在班级里数得上。","阅读习惯很好，作文里常常能看到阅读积累的影子。"],
+  "数学": ["数学思维清晰，解题思路灵活，理科学习很有潜力。","数学成绩突出，难题面前不轻易放弃。"],
+  "英语": ["英语语感不错，口语和书写都比较规范。","英语学习很用功，单词和阅读的积累都很扎实。"],
+  "组织": ["组织能力强，班级活动经手张罗总能井井有条。","有较强的组织协调能力，是老师得力的小助手。"],
+  "积极": ["课堂上积极举手发言，思维活跃，常常有精彩的回答。","课堂参与度高，敢于表达自己的想法。"],
+  "拖拉": ["作业有时拖拉，希望能把时间规划得更紧凑一些。","时间管理上还需加强，作业按时交是下一步要做到的小目标。"],
+  "基础": ["基础知识还需要再巩固，建议每天抽一点时间复习当天所学。","基础还需夯实，把课本上的基本题练熟是当前最要紧的事。"]
+};
+const GENERIC_CHAR = [
+  "待人有礼貌，和同学相处融洽，是班级里受欢迎的一员。",
+  "尊敬老师、团结同学，集体荣誉感强。",
+  "遵守纪律，讲究卫生，日常行为规范做得不错。",
+  "为人真诚友善，和同学相处时懂得体谅和分享。"
+];
+const HOPES = [
+  "希望下学期继续保持这份劲头，在更难的挑战面前也敢于尝试。",
+  "期待下学期看到一个更自信、更主动的{n}。",
+  "希望下学期在保持优势的同时，再把弱项补一补，争取全面进步。",
+  "新学期，愿{n}带着这份认真走得更远。",
+  "希望下学期继续发扬优点，争取取得更大的进步。",
+  "期待{n}下学期百尺竿头，更进一步。",
+  "希望下学期能更主动地参与课堂讨论，把自己的想法大胆说出来。",
+  "愿{n}下学期保持热爱、保持努力，收获更多成长。"
+];
+const HOPE_WEAK = [
+  "希望下学期改掉粗心的毛病，做完多检查，成绩一定会更好。",
+  "希望下学期把基础打得更牢，每天进步一点点，积累起来就是大进步。",
+  "希望下学期更专注一些，把课堂时间真正利用起来。"
+];
+
+function detectLevel(tags){
+  const s = tags.join(" ");
+  if(/优秀|名列前茅|第一|拔尖|优异/.test(s)) return "high";
+  if(/进步|越来越好/.test(s)) return "progress";
+  if(/基础弱|薄弱|起伏|吃力|拖拉/.test(s)) return "weak";
+  return "steady";
+}
+function traitSentences(tags, seed){
+  const out = [];
+  const keys = Object.keys(TRAIT_SENT);
+  tags.forEach(t=>{
+    const k = keys.find(k=>t.includes(k));
+    if(k && out.length<2){
+      const pool = TRAIT_SENT[k];
+      out.push(pool[(seed+out.length)%pool.length]);
+    }
+  });
+  const known = tags.filter(t=>keys.some(k=>t.includes(k)));
+  const unknown = tags.filter(t=>!known.includes(t) && t.length>=2 && t.length<=6);
+  if(out.length===0 && unknown.length){
+    out.push("在“"+unknown[0]+"”方面给老师留下了印象，希望继续保持。");
+  }
+  return out;
+}
+function makeComment(name, tags, len, seedBase){
+  const seed = seedBase + salt*7;
+  const levelKey = detectLevel(tags);
+  let parts = [];
+  parts.push(OPENERS[(seed + name.length) % OPENERS.length].replaceAll("{t}",TERM).replaceAll("{n}",name));
+  const studyPool = STUDY[levelKey];
+  parts.push(studyPool[(seed+1)%studyPool.length]);
+  let traits = traitSentences(tags, seed);
+  if(traits.length===0) traits = [GENERIC_CHAR[seed % GENERIC_CHAR.length]];
+  parts.push(...traits.slice(0, len==="short"?1:2));
+  let hope;
+  if(levelKey==="weak" && /粗心/.test(tags.join(" "))) hope = HOPE_WEAK[0].replaceAll("{n}",name);
+  else if(levelKey==="weak") hope = HOPE_WEAK[(seed+1)%HOPE_WEAK.length].replaceAll("{n}",name);
+  else hope = HOPES[(seed+2)%HOPES.length].replaceAll("{n}",name);
+  if(len!=="short") parts.push(hope);
+  if(len==="long") parts.push(GENERIC_CHAR[(seed+3)%GENERIC_CHAR.length]);
+  return [...new Set(parts)].join("");
+}
+function parseNames(){
+  const raw = document.getElementById("names").value.trim();
+  if(!raw) return [];
+  return raw.split(/\n+/).map(line=>{
+    line = line.trim().replace(/^[\d\.、\s]+/,"");
+    if(!line) return null;
+    const m = line.match(/^([^\s,，:：、]+)[\s,，:：、]*(.*)$/);
+    const name = m?m[1]:line;
+    const rest = m?m[2]:"";
+    const tags = rest.split(/[,，、;；\s]+/).map(s=>s.trim()).filter(Boolean);
+    return {name, tags};
+  }).filter(Boolean);
+}
+function generateAll(){
+  const list = parseNames();
+  if(!list.length){ alert("请先粘贴名单，每行一位学生。"); return; }
+  salt++;
+  const len = document.getElementById("length").value;
+  const seen = new Set();
+  results = list.map((s,i)=>{
+    let text = makeComment(s.name, s.tags, len, i*3+1);
+    let tries=0;
+    while(seen.has(text) && tries<8){ tries++; text = makeComment(s.name, s.tags, len, i*3+1+tries*11); }
+    seen.add(text);
+    return {...s, text};
+  });
+  render();
+  document.getElementById("out").style.display="block";
+  document.getElementById("out").scrollIntoView({behavior:"smooth",block:"start"});
+}
+function render(){
+  document.getElementById("outCount").textContent = "共 " + results.length + " 条，点评语可直接改";
+  document.getElementById("results").innerHTML = results.map((r,i)=>`
+    <div class="item">
+      <h3>${esc(r.name)}</h3>
+      <textarea oninput="results[${i}].text=this.value">${esc(r.text)}</textarea>
+      <button class="swap" onclick="regenOne(${i})">换一条 ↻</button>
+    </div>`).join("");
+}
+function regenOne(i){
+  const r = results[i];
+  const len = document.getElementById("length").value;
+  let t = makeComment(r.name, r.tags, len, Math.floor(Math.random()*997)+1);
+  if(t===r.text) t = makeComment(r.name, r.tags, len, Math.floor(Math.random()*997)+500);
+  r.text=t; render();
+}
+function copyAll(){
+  if(!results.length) return;
+  navigator.clipboard.writeText(results.map(r=>r.name+"："+r.text).join("\n\n")).then(()=>alert("已复制全部 "+results.length+" 条"));
+}
+function esc(s){ return String(s).replace(/&/g,"&amp;").replace(/</g,"&lt;").replace(/>/g,"&gt;").replace(/"/g,"&quot;"); }
+function downloadWord(){
+  if(!results.length) return;
+  const body = results.map(r=>`<p style="font-size:14pt;line-height:1.8"><b>${esc(r.name)}</b>：${esc(r.text)}</p>`).join("");
+  const html = `<html xmlns:o="urn:schemas-microsoft-com:office:office" xmlns:w="urn:schemas-microsoft-com:office:word"><head><meta charset="utf-8"><title>期末评语</title></head><body style="font-family:SimSun">${body}</body></html>`;
+  const a=document.createElement("a");
+  a.href=URL.createObjectURL(new Blob(["\ufeff"+html],{type:"application/msword"}));
+  a.download="期末评语.doc"; a.click();
+  setTimeout(()=>URL.revokeObjectURL(a.href),2000);
+}
+
+// 一次性链接验码：链接形如 pingyu-onetime.html#t=一串字符
+// 把下面地址换成你部署好的 Worker 地址（结尾不要加 /）
+const WORKER_URL = "https://pingyu-onetime.sheepai.workers.dev";
+let MAX_NAMES = 10;
+let UNLOCKED = false;
+const params = new URLSearchParams(location.hash.slice(1));
+const TOKEN = params.get("t") || "";
+async function verifyToken(){
+  const wrap = document.querySelector(".wrap");
+  const msg = document.getElementById("gateMsg");
+  wrap.style.display = "none";
+  if(!TOKEN){ msg.textContent = "这个链接里没有验码，请联系卖家重新发一个。"; return; }
+  try{
+    const r = await fetch(WORKER_URL + "/verify", {method:"POST", headers:{"content-type":"application/json"}, body: JSON.stringify({token: TOKEN})});
+    const d = await r.json();
+    if(!d.ok){ msg.textContent = d.error || "链接验证失败，请联系卖家重新发一个。"; return; }
+    MAX_NAMES = d.tier || 10;
+    UNLOCKED = true;
+    document.getElementById("gate").style.display = "none";
+    wrap.style.display = "";
+    const p = document.querySelector("header p");
+    if(p) p.textContent = "本次链接可生成 " + MAX_NAMES + " 条评语，转发给别人打不开";
+  }catch(e){
+    msg.textContent = "网络有问题，验证没连上，等一下刷新再试一次。";
+  }
+}
+// 条数上限：超过本次档位不生成
+const _generateAll = generateAll;
+generateAll = function(){
+  const list = parseNames();
+  if(list.length > MAX_NAMES){ alert("本次链接最多生成 " + MAX_NAMES + " 条，你贴了 " + list.length + " 条，多了的请分开发。"); return; }
+  _generateAll();
+};
+verifyToken();
+function fillDemo(){
+  document.getElementById("names").value = ["张小明 认真，进步大，乐于助人","李小红 成绩优秀，细心，爱阅读","王小刚 活泼，粗心，体育好","陈小芳 内向，数学好，课堂积极","刘小强 基础弱，作业拖拉","赵小美 组织能力强，英语好"].join("\n");
+  generateAll();
+}
+</script>
+</body>
+</html>
