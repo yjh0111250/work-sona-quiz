@@ -1,0 +1,351 @@
+<!doctype html>
+<html lang="zh-CN">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width, initial-scale=1, viewport-fit=cover">
+<meta name="description" content="测你的本命省会城市：10 道题，看看你天生属于哪座城。仅供娱乐。">
+<meta name="theme-color" content="#d7dad3">
+<title>测你的本命省会城市</title>
+<style>
+:root {
+  --paper: #f3eddd;
+  --ink: #171a1d;
+  --accent: #d6422b;
+  --secondary: #2457d6;
+  --wash: #d7dad3;
+  --muted: #626761;
+  --display-font: "Arial Black", "Microsoft YaHei", "PingFang SC", sans-serif;
+  --body-font: "Microsoft YaHei", "PingFang SC", system-ui, sans-serif;
+}
+* { box-sizing: border-box; }
+html {
+  background:
+    linear-gradient(rgba(23,26,29,0.045) 1px, transparent 1px),
+    linear-gradient(90deg, rgba(23,26,29,0.045) 1px, transparent 1px),
+    var(--wash);
+  background-size: 24px 24px;
+}
+body { min-width: 320px; margin: 0; color: var(--ink); font-family: var(--body-font); }
+button { font: inherit; cursor: pointer; }
+.app-shell { width: min(100%, 560px); min-height: 100dvh; margin: 0 auto; padding: 10px 12px 28px; }
+.site-header {
+  min-height: 42px; display: flex; align-items: center; justify-content: space-between; gap: 12px;
+  color: rgba(23,26,29,0.68); font-family: Consolas, "Courier New", monospace;
+  font-size: 10px; letter-spacing: 0.08em; text-transform: uppercase;
+}
+.site-header__title {
+  display: flex; align-items: center; gap: 8px; color: var(--ink);
+  font-family: var(--display-font); font-size: 14px; font-weight: 900;
+}
+.site-header__title::before { content: ""; width: 9px; height: 9px; flex: 0 0 auto; background: var(--accent); }
+.stage {
+  position: relative; overflow: hidden; width: 100%; min-height: 420px;
+  background:
+    linear-gradient(90deg, rgba(23,26,29,0.035) 1px, transparent 1px),
+    linear-gradient(rgba(23,26,29,0.025) 1px, transparent 1px),
+    var(--paper);
+  background-size: 18px 18px;
+  border: 2px solid var(--ink); border-radius: 2px;
+  box-shadow: 8px 8px 0 rgba(23,26,29,0.2);
+  padding: 28px 20px 24px 48px;
+}
+.stage::after {
+  content: ""; position: absolute; top: 0; bottom: 0; left: 0; width: 28px;
+  border-right: 1px dashed rgba(23,26,29,0.28);
+  background: radial-gradient(circle at 14px 19px, var(--wash) 0 5.5px, transparent 6px) 0 0 / 28px 38px repeat-y;
+  pointer-events: none;
+}
+.tag { font-family: Consolas, "Courier New", monospace; font-size: 10px; letter-spacing: 0.08em; color: var(--muted); }
+.stamp {
+  display: inline-block; padding: 6px 10px; border: 3px double var(--accent);
+  outline: 1px solid var(--accent); outline-offset: -6px;
+  color: var(--accent); font-family: var(--display-font); font-weight: 900;
+  font-size: 17px; line-height: 1; transform: rotate(-8deg);
+}
+h1.title { margin: 18px 0 0; font-family: var(--display-font); font-weight: 900; font-size: 44px; line-height: 1.05; letter-spacing: -0.04em; }
+.rule { margin: 18px 0; color: #8c908a; font-size: 12px; letter-spacing: 0.1em; }
+.copy { color: var(--muted); font-size: 15px; line-height: 1.55; }
+.big-art {
+  margin: 20px 0 0; font-family: "Arial Black", Impact, sans-serif; font-size: 76px;
+  line-height: 1; letter-spacing: -0.06em; color: transparent;
+  -webkit-text-stroke: 2px var(--ink);
+}
+.btn {
+  min-height: 48px; padding: 10px 16px; border: 2px solid var(--ink); border-radius: 2px;
+  background: var(--accent); color: var(--paper); font-family: var(--display-font); font-weight: 900;
+  font-size: 15px; box-shadow: 4px 4px 0 var(--ink);
+  transition: transform 120ms ease, box-shadow 120ms ease;
+}
+.btn:hover { transform: translate(2px, 2px); box-shadow: 2px 2px 0 var(--ink); }
+.btn:active { transform: translate(4px, 4px); box-shadow: none; }
+.btn--dark { background: var(--ink); color: var(--paper); }
+.btn--ghost { background: transparent; color: var(--ink); }
+.btn:focus-visible, .option:focus-visible { outline: 3px solid var(--secondary); outline-offset: 3px; }
+
+.qr-box { width: 220px; height: 220px; margin: 20px auto 0; display: grid; place-items: center; border: 2px dashed rgba(23,26,29,0.5); background: #fffaf0; color: var(--muted); font-size: 14px; line-height: 1.6; text-align: center; }
+.footnote { margin-top: 18px; color: var(--muted); font-size: 11px; line-height: 1.5; }
+.route { color: var(--accent); font-family: Consolas, "Courier New", monospace; font-size: 12px; letter-spacing: 0.06em; }
+.progress { height: 8px; margin: 10px 0 18px; border: 2px solid var(--ink); background: #fff; }
+.progress__fill { height: 100%; background: var(--accent); transition: width 200ms ease; }
+.q-lead { color: var(--muted); font-size: 14px; line-height: 1.45; }
+.q-prompt { margin: 8px 0 20px; font-family: var(--display-font); font-weight: 900; font-size: 26px; line-height: 1.2; }
+.options { display: grid; gap: 12px; }
+.option {
+  display: flex; align-items: center; gap: 12px; width: 100%;
+  padding: 12px 14px 12px 10px; border: 2px solid var(--ink); border-radius: 2px;
+  background: #fffaf0; color: var(--ink); text-align: left; font-size: 15px; line-height: 1.3;
+  box-shadow: 3px 3px 0 rgba(23,26,29,0.86);
+  transition: transform 110ms ease, box-shadow 110ms ease, background 110ms ease;
+}
+.option:hover { background: #fff; transform: translate(2px, 2px); box-shadow: 1px 1px 0 var(--ink); }
+.option:active { transform: translate(3px, 3px); box-shadow: none; }
+.option__index {
+  display: grid; width: 27px; height: 27px; flex: 0 0 27px; place-items: center;
+  border: 1px solid var(--ink); background: var(--ink); color: var(--paper);
+  font-family: Consolas, "Courier New", monospace; font-size: 15px; font-weight: 700;
+}
+.quiz-tip { margin-top: 18px; color: var(--muted); font-size: 11px; }
+.kicker { color: var(--accent); font-size: 12px; letter-spacing: 0.06em; }
+.result-name { margin: 10px 0 0; font-family: var(--display-font); font-weight: 900; font-size: 44px; line-height: 1.05; letter-spacing: -0.04em; }
+.result-role { margin: 8px 0 0; color: var(--secondary); font-size: 18px; }
+.result-copy { margin: 18px 0 0; font-size: 16px; line-height: 1.7; }
+.barcode { margin: 18px 0 0; color: #8c908a; font-family: Consolas, "Courier New", monospace; font-size: 13px; letter-spacing: 0.02em; }
+.share-box {
+  margin-top: 18px; padding: 12px 14px; border: 2px dashed rgba(23,26,29,0.5);
+  background: #fffaf0; font-family: var(--display-font); font-weight: 900; font-size: 17px;
+}
+.actions { display: flex; gap: 12px; margin-top: 20px; flex-wrap: wrap; }
+.actions .btn { flex: 1 1 auto; }
+.copied-tip { margin-top: 10px; color: var(--secondary); font-size: 12px; min-height: 16px; }
+@media (max-width: 420px) {
+  .app-shell { padding-inline: 8px; }
+  .stage { box-shadow: 5px 5px 0 rgba(23,26,29,0.2); padding-left: 40px; }
+  h1.title { font-size: 40px; }
+  .big-art { font-size: 64px; }
+  .result-name { font-size: 36px; }
+}
+@media (prefers-reduced-motion: reduce) {
+  *, *::before, *::after { transition-duration: 0.01ms !important; }
+}
+</style>
+</head>
+<body>
+<div class="app-shell">
+  <header class="site-header">
+    <span class="site-header__title">本命城市鉴定所</span>
+    <span>FUN FILE / NO. 0099</span>
+  </header>
+  <main class="stage" id="app"></main>
+</div>
+<script>
+(function () {
+  "use strict";
+
+  var CITIES = [
+    { id: "chengdu", name: "成都", role: "慢生活天花板", desc: "火锅配盖碗茶，日子过得巴适。你不是拖延，你是在给生活留白。慢一点，幸福就多一点。", share: "我是天生成都人" },
+    { id: "chongqing", name: "重庆", role: "山城热辣玩家", desc: "8D魔幻山城，火锅要吃最辣的，楼梯要爬最陡的。你的人生没有平路，但每一层都有风景。", share: "我是天生重庆人" },
+    { id: "xian", name: "西安", role: "古都胃与心", desc: "肉夹馍配冰峰，城墙根下晒太阳。你的浪漫里，自带千年历史感。", share: "我是天生西安人" },
+    { id: "hangzhou", name: "杭州", role: "江南松弛派", desc: "西湖边的松弛感，龙井配小笼包，雨天也要撑伞出门。你的节奏，慢得刚刚好。", share: "我是天生杭州人" },
+    { id: "nanjing", name: "南京", role: "民国风温柔倔将", desc: "鸭血粉丝汤配梧桐大道，温柔里带着一点倔。民国风的浪漫，你天生就懂。", share: "我是天生南京人" },
+    { id: "wuhan", name: "武汉", role: "过早天花板", desc: "热干面配糊汤粉，码头文化长大的人，热情直接。你的江湖气，藏在早餐里。", share: "我是天生武汉人" },
+    { id: "guangzhou", name: "广州", role: "务实享受家", desc: "早茶喝到中午，糖水收尾。务实又会享受，你把日子过成了生意，也过成了生活。", share: "我是天生广州人" },
+    { id: "haerbin", name: "哈尔滨", role: "冰雪热乎劲儿", desc: "冻梨配铁锅炖，零下二十度也要出门吃烧烤。你是冷天里最暖的人。", share: "我是天生哈尔滨人" },
+    { id: "kunming", name: "昆明", role: "春城阳光居民", desc: "米线配饵块，阳光是最好的调味料。你的生活没有淡季，只有春天。", share: "我是天生昆明人" },
+    { id: "qingdao", name: "青岛", role: "海风啤酒客", desc: "海风配啤酒，崂山配蛤蜊。你的人生信条：哈啤酒、吃蛤蜊，看海。", share: "我是天生青岛人" }
+  ];
+
+  // 每道题 4 个选项；每个选项给主城市 +2 分、副城市 +1 分。
+  var QUESTIONS = [
+    { lead: "周末早上，肚子先醒了。", prompt: "理想的早餐是？", options: [
+      { text: "一碗热干面，边走边吃", scores: { wuhan: 2, guangzhou: 1 } },
+      { text: "米线配饵块，再来杯现磨咖啡", scores: { kunming: 2, hangzhou: 1 } },
+      { text: "豆浆油条，再来笼小笼包", scores: { hangzhou: 2, nanjing: 1 } },
+      { text: "冰峰配肉夹馍，蹲城墙根下吃", scores: { xian: 2, chengdu: 1 } }
+    ] },
+    { lead: "下班了，今天不想直接回家。", prompt: "你最想去哪儿？", options: [
+      { text: "茶馆，点杯盖碗茶坐一下午", scores: { chengdu: 2, kunming: 1 } },
+      { text: "江边吹风，看夜景灯火", scores: { chongqing: 2, wuhan: 1 } },
+      { text: "夜市，从街头吃到街尾", scores: { xian: 2, wuhan: 1 } },
+      { text: "海边散步，顺手买点海鲜", scores: { qingdao: 2, guangzhou: 1 } }
+    ] },
+    { lead: "天气预报又变了。", prompt: "你最喜欢哪种天气？", options: [
+      { text: "四季如春，不冷不热", scores: { kunming: 2, hangzhou: 1 } },
+      { text: "下雪天，越冷越有劲", scores: { haerbin: 2, xian: 1 } },
+      { text: "烟雨江南，梧桐叶落", scores: { nanjing: 2, hangzhou: 1 } },
+      { text: "夏天越热越好，火炉才带劲", scores: { wuhan: 2, chongqing: 1 } }
+    ] },
+    { lead: "朋友聚餐，点菜的任务交给你。", prompt: "你点什么？", options: [
+      { text: "火锅，越辣越好", scores: { chongqing: 2, chengdu: 1 } },
+      { text: "早茶，慢慢喝慢慢聊", scores: { guangzhou: 2, hangzhou: 1 } },
+      { text: "烧烤加啤酒，撸串到半夜", scores: { haerbin: 2, qingdao: 1 } },
+      { text: "一桌家常菜，讲究个地道", scores: { nanjing: 2, xian: 1 } }
+    ] },
+    { lead: "难得有个小长假。", prompt: "旅行时你最看重什么？", options: [
+      { text: "历史感，老城墙、古街巷", scores: { xian: 2, nanjing: 1 } },
+      { text: "高原湖泊，蓝天白云", scores: { kunming: 2, hangzhou: 1 } },
+      { text: "美食，一座城从早吃到晚", scores: { chengdu: 2, wuhan: 1 } },
+      { text: "海，走到哪儿都要看海", scores: { qingdao: 2, guangzhou: 1 } }
+    ] },
+    { lead: "如果可以选，你想住在哪种地方？", prompt: "理想的居住环境是？", options: [
+      { text: "山城，楼上楼下都是风景", scores: { chongqing: 2, kunming: 1 } },
+      { text: "长江边，梧桐大道下散步", scores: { nanjing: 2, wuhan: 1 } },
+      { text: "临湖，推窗就是西湖", scores: { hangzhou: 2, kunming: 1 } },
+      { text: "靠海，出门就是沙滩", scores: { qingdao: 2, haerbin: 1 } }
+    ] },
+    { lead: "今天有点烦。", prompt: "你怎么解压？", options: [
+      { text: "搓一顿火锅，烦恼都涮了", scores: { chengdu: 2, chongqing: 1 } },
+      { text: "喝早茶，一盅两件慢慢来", scores: { guangzhou: 2, hangzhou: 1 } },
+      { text: "去江边走走，吹吹风", scores: { wuhan: 2, hangzhou: 1 } },
+      { text: "泡澡堂子，出身汗就好了", scores: { haerbin: 2, xian: 1 } }
+    ] },
+    { lead: "翻翻手机相册。", prompt: "你手机里最多的照片是？", options: [
+      { text: "美食，每顿都要先拍", scores: { chengdu: 2, wuhan: 1 } },
+      { text: "夜景，灯火通明的城市", scores: { chongqing: 2, guangzhou: 1 } },
+      { text: "古建筑，砖瓦都透着故事", scores: { xian: 2, nanjing: 1 } },
+      { text: "大海和蓝天", scores: { qingdao: 2, kunming: 1 } }
+    ] },
+    { lead: "聊聊生活节奏。", prompt: "你最喜欢的城市节奏是？", options: [
+      { text: "慢悠悠，巴适得很", scores: { chengdu: 2, kunming: 1 } },
+      { text: "快节奏，效率就是生命", scores: { guangzhou: 2, wuhan: 1 } },
+      { text: "不紧不慢，刚刚好", scores: { hangzhou: 2, nanjing: 1 } },
+      { text: "热情直接，江湖气十足", scores: { wuhan: 2, chongqing: 1 } }
+    ] },
+    { lead: "最后一题，只能带走一样。", prompt: "你选什么？", options: [
+      { text: "一包火锅底料", scores: { chongqing: 2, chengdu: 1 } },
+      { text: "一盒龙井", scores: { hangzhou: 2, guangzhou: 1 } },
+      { text: "一坛老酒", scores: { haerbin: 2, xian: 1 } },
+      { text: "一箱啤酒", scores: { qingdao: 2, haerbin: 1 } }
+    ] }
+  ];
+
+  function computeResult(answerIndexes) {
+    var totals = {};
+    CITIES.forEach(function (c) { totals[c.id] = 0; });
+    answerIndexes.forEach(function (optIdx, qIdx) {
+      var opt = QUESTIONS[qIdx] && QUESTIONS[qIdx].options[optIdx];
+      if (!opt) return;
+      Object.keys(opt.scores).forEach(function (cityId) {
+        if (totals.hasOwnProperty(cityId)) totals[cityId] += opt.scores[cityId];
+      });
+    });
+    var best = CITIES[0];
+    CITIES.forEach(function (c) { if (totals[c.id] > totals[best.id]) best = c; });
+    return { city: best, totals: totals };
+  }
+
+  var app = document.getElementById("app");
+  var answers = [];
+  var current = 0;
+
+  function esc(s) {
+    return String(s).replace(/&/g, "&amp;").replace(/</g, "&lt;").replace(/>/g, "&gt;").replace(/"/g, "&quot;");
+  }
+
+
+  function renderPay() {
+    app.innerHTML =
+      '<p class="tag">INTERNAL FUN FILE / NO. 0099</p>' +
+      '<p><span class="stamp">仅供<br>娱乐</span></p>' +
+      '<h1 class="title">先付 0.99 元<br>再测你的<br>本命省会城市</h1>' +
+      '<p class="rule">— — — — — — — — — — — —</p>' +
+      '<p class="copy">10 道日常小选择，约 90 秒，看看你天生属于哪座城。</p>' +
+      '<div class="qr-box">你的收款码<br>放这里</div>' +
+      '<p><button class="btn" id="paid-btn" type="button">我已付款，开始测 →</button></p>' +
+      '<p class="quiz-tip">扫码付 0.99 元，付完点按钮开始测。</p>' +
+      '<p class="footnote">答案只在当前浏览器里计算，不上传、不收集个人信息。</p>';
+    document.getElementById("paid-btn").addEventListener("click", function () {
+      answers = [];
+      current = 0;
+      renderCover();
+    });
+  }
+
+  function renderCover() {
+    app.innerHTML =
+      '<p class="tag">INTERNAL FUN FILE / NO. 0099</p>' +
+      '<p><span class="stamp">仅供<br>娱乐</span></p>' +
+      '<h1 class="title">测测你的<br>本命省会<br>城市</h1>' +
+      '<p class="rule">— — — — — — — — — — — —</p>' +
+      '<p class="copy">10 道日常小选择<br>约 90 秒，看看你天生属于哪座城。</p>' +
+      '<p class="big-art">09:01</p>' +
+      '<p class="copy">成都 · 重庆 · 西安 · 杭州 · 南京<br>武汉 · 广州 · 哈尔滨 · 昆明 · 青岛</p>' +
+      '<p><button class="btn btn--dark" id="start-btn" type="button">开始测 →</button></p>' +
+      '<p class="footnote">答案只在当前浏览器里计算，不上传、不收集个人信息。</p>';
+    document.getElementById("start-btn").addEventListener("click", function () {
+      answers = [];
+      current = 0;
+      renderQuestion();
+    });
+  }
+
+  function renderQuestion() {
+    var q = QUESTIONS[current];
+    var letters = ["A", "B", "C", "D"];
+    var html = '<p class="route">第 ' + (current + 1) + ' / ' + QUESTIONS.length + ' 题</p>' +
+      '<div class="progress"><div class="progress__fill" style="width:' + Math.round(current / QUESTIONS.length * 100) + '%"></div></div>' +
+      '<p class="q-lead">' + esc(q.lead) + '</p>' +
+      '<p class="q-prompt">' + esc(q.prompt) + '</p>' +
+      '<div class="options">';
+    q.options.forEach(function (opt, i) {
+      html += '<button class="option" type="button" data-opt="' + i + '">' +
+        '<span class="option__index">' + letters[i] + '</span><span>' + esc(opt.text) + '</span></button>';
+    });
+    html += '</div><p class="quiz-tip">没有标准答案，选你真正会选的那一个。</p>';
+    app.innerHTML = html;
+    var buttons = app.querySelectorAll(".option");
+    buttons.forEach(function (btn) {
+      btn.addEventListener("click", function () {
+        answers.push(parseInt(btn.getAttribute("data-opt"), 10));
+        current += 1;
+        if (current < QUESTIONS.length) renderQuestion();
+        else renderResult();
+      });
+    });
+  }
+
+  function renderResult() {
+    var result = computeResult(answers);
+    var city = result.city;
+    var shareText = city.share + "——我的本命省会城市是" + city.name + "！你呢？";
+    app.innerHTML =
+      '<p class="kicker">你的本命省会城市是</p>' +
+      '<h1 class="result-name">' + esc(city.name) + '</h1>' +
+      '<p class="result-role">' + esc(city.role) + '</p>' +
+      '<p class="barcode">||||| |||||| |||| |||||||  /  09:01</p>' +
+      '<p class="result-copy">' + esc(city.desc) + '</p>' +
+      '<div class="share-box">' + esc(city.share) + '</div>' +
+      '<div class="actions">' +
+      '<button class="btn" id="copy-btn" type="button">复制分享语</button>' +
+      '<button class="btn btn--ghost" id="retry-btn" type="button">重新测一次</button>' +
+      '</div>' +
+      '<p class="copied-tip" id="copied-tip"></p>' +
+      '<p class="footnote">仅供娱乐 · 答案只在本地计算，不收集个人信息。</p>';
+    document.getElementById("copy-btn").addEventListener("click", function () {
+      var tip = document.getElementById("copied-tip");
+      function done() { tip.textContent = "已复制，去发给朋友吧。"; }
+      function fallback() {
+        var ta = document.createElement("textarea");
+        ta.value = shareText;
+        document.body.appendChild(ta);
+        ta.select();
+        try { document.execCommand("copy"); done(); }
+        catch (e) { tip.textContent = "复制失败，长按分享语手动复制。"; }
+        document.body.removeChild(ta);
+      }
+      if (navigator.clipboard && navigator.clipboard.writeText) {
+        navigator.clipboard.writeText(shareText).then(done, fallback);
+      } else {
+        fallback();
+      }
+    });
+    document.getElementById("retry-btn").addEventListener("click", renderCover);
+  }
+
+  // 供服务端测试用的纯逻辑出口（浏览器里无害）。
+  globalThis.BENGMING_TEST = { CITIES: CITIES, QUESTIONS: QUESTIONS, computeResult: computeResult };
+
+  renderPay();
+})();
+</script>
+</body>
+</html>
